@@ -90,5 +90,3 @@ The application uses SQLite with Prisma ORM. The database file is located at `pr
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
-
--- Testing ruleset --
