@@ -53,7 +53,7 @@ npm run dev
 
 ## Database
 
-The application uses SQLite with Prisma ORM. The database file is located at `prisma/dev.db`.
+The application uses SQLite with Prisma ORM. The database file is located at `prisma/dev.db`. Note that this file is included in `.gitignore` as it's a local development database. Each developer will need to run `npx prisma db push` to create their own local database.
 
 ## Contributing
 

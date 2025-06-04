@@ -14,10 +14,33 @@ interface Todo {
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([])
   const [newTodo, setNewTodo] = useState({ title: '', description: '' })
+  const [justAddedId, setJustAddedId] = useState<number | null>(null)
+  const [darkMode, setDarkMode] = useState(false)
 
   useEffect(() => {
+    // On mount, set darkMode from localStorage or system preference
+    const theme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (theme === 'dark' || (!theme && prefersDark)) {
+      setDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
     fetchTodos()
   }, [])
+
+  useEffect(() => {
+    // Persist theme to localStorage and update <html> class
+    if (darkMode) {
+      localStorage.setItem('theme', 'dark');
+      document.documentElement.classList.add('dark');
+    } else {
+      localStorage.setItem('theme', 'light');
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode])
 
   const fetchTodos = async () => {
     const response = await fetch('/api/todos')
@@ -34,7 +57,10 @@ export default function Home() {
     })
     if (response.ok) {
       setNewTodo({ title: '', description: '' })
+      const created = await response.json()
+      setJustAddedId(created.id)
       fetchTodos()
+      setTimeout(() => setJustAddedId(null), 1200)
     }
   }
 
@@ -59,18 +85,29 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen p-8">
+    <main className="min-h-screen p-4 sm:p-8 bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 transition-colors">
       <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Todo List</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-extrabold text-center text-blue-900 dark:text-blue-200 tracking-tight drop-shadow-sm animate-fade-in">
+            Todo List
+          </h1>
+          <button
+            onClick={() => setDarkMode((d) => !d)}
+            className="ml-4 px-3 py-2 rounded-lg bg-white/80 dark:bg-gray-700 text-gray-700 dark:text-gray-200 shadow hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors cursor-pointer font-semibold"
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? '🌙' : '☀️'}
+          </button>
+        </div>
         
-        <form onSubmit={addTodo} className="mb-8 space-y-4">
+        <form onSubmit={addTodo} className="mb-10 space-y-4 bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 backdrop-blur-md animate-fade-in-up">
           <div>
             <input
               type="text"
               placeholder="Todo title"
               value={newTodo.title}
               onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-lg text-gray-900 dark:text-gray-100 bg-white/90 dark:bg-gray-800/80 placeholder-slate-500 dark:placeholder-slate-300"
               required
             />
           </div>
@@ -79,42 +116,47 @@ export default function Home() {
               placeholder="Description (optional)"
               value={newTodo.description}
               onChange={(e) => setNewTodo({ ...newTodo, description: e.target.value })}
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base text-gray-900 dark:text-gray-100 bg-white/90 dark:bg-gray-800/80 placeholder-slate-500 dark:placeholder-slate-300"
             />
           </div>
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-2 rounded-lg hover:from-blue-600 hover:to-indigo-600 active:scale-95 transition-all cursor-pointer font-semibold shadow-md"
           >
             Add Todo
           </button>
         </form>
 
-        <div className="space-y-4">
-          {todos.map((todo) => (
+        <div className="space-y-5">
+          {todos.length === 0 && (
+            <div className="text-center text-gray-400 dark:text-gray-500 animate-fade-in">No todos yet. Add your first one!</div>
+          )}
+          {todos.map((todo, idx) => (
             <div
               key={todo.id}
-              className="border p-4 rounded flex items-start justify-between"
+              className={`border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/70 p-5 rounded-xl flex items-start justify-between shadow-md transition-all duration-500 hover:shadow-xl group relative animate-fade-in-up ${justAddedId === todo.id ? 'ring-2 ring-blue-400 ring-offset-2 scale-[1.03] bg-blue-50 dark:bg-blue-800/60' : ''}`}
+              style={{ animationDelay: `${idx * 60}ms` }}
             >
               <div className="flex items-start space-x-4">
                 <input
                   type="checkbox"
                   checked={todo.completed}
                   onChange={() => toggleTodo(todo)}
-                  className="mt-1"
+                  className="mt-1 cursor-pointer w-5 h-5 rounded border border-gray-300 dark:border-gray-600 text-blue-500 focus:ring-blue-500 transition-all dark:bg-gray-800"
                 />
                 <div>
-                  <h3 className={`font-medium ${todo.completed ? 'line-through text-gray-500' : ''}`}>
+                  <h3 className={`font-semibold text-lg ${todo.completed ? 'line-through text-gray-400 dark:text-gray-600' : 'text-gray-900 dark:text-gray-100'} transition-colors`}>
                     {todo.title}
                   </h3>
                   {todo.description && (
-                    <p className="text-gray-600 mt-1">{todo.description}</p>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1 text-base transition-colors">{todo.description}</p>
                   )}
                 </div>
               </div>
               <button
                 onClick={() => deleteTodo(todo.id)}
-                className="text-red-500 hover:text-red-700"
+                className="text-red-500 hover:text-red-700 active:text-red-800 transition-colors cursor-pointer px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900 font-medium shadow-sm group-hover:scale-105 group-active:scale-95 border border-red-400 dark:border-red-500"
+                aria-label="Delete todo"
               >
                 Delete
               </button>
@@ -125,3 +167,11 @@ export default function Home() {
     </main>
   )
 }
+
+// Tailwind CSS custom animations
+// Add to globals.css:
+// .animate-fade-in { @apply opacity-0 animate-[fadeIn_0.7s_ease-in-out_forwards]; }
+// .animate-fade-in-up { @apply opacity-0 animate-[fadeInUp_0.7s_ease-in-out_forwards]; }
+// @keyframes fadeIn { to { opacity: 1; } }
+// @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+// .animate-fade-in-up { transform: translateY(20px); }
