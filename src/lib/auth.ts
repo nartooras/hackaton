@@ -61,6 +61,14 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  jwt: {
+    encode: ({ secret, token }) => {
+      return Buffer.from(JSON.stringify(token)).toString('base64');
+    },
+    decode: ({ secret, token }) => {
+      return JSON.parse(Buffer.from(token, 'base64').toString());
+    }
+  },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
   pages: {
