@@ -64,7 +64,7 @@ export default function Navbar() {
               />
             </svg>
           </Link>
-          {session.user.role === 'ADMIN' && (
+          {session.user.roles?.includes('Admin') && (
             <Link
               href="/admin/users"
               className="flex items-center gap-2 text-white/90 hover:text-white focus:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-3 py-1"
