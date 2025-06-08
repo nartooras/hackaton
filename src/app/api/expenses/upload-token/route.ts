@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { randomBytes } from 'crypto'
+import crypto from 'crypto'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate a temporary token
-    const token = randomBytes(32).toString('hex')
+    const token = crypto.randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
 
     // Store the token in the database
@@ -22,6 +22,11 @@ export async function POST(request: NextRequest) {
         token,
         email: session.user.email,
         expiresAt,
+        user: {
+          connect: {
+            email: session.user.email,
+          },
+        },
       },
     })
 
