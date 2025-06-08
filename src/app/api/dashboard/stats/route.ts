@@ -17,7 +17,7 @@ export async function GET() {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    // Check if user has ACCOUNTING role
+    // Check if user has ADMIN or ACCOUNTING role
     const user = await prisma.user.findUnique({
       where: { email: session.user?.email! },
       include: {
@@ -29,11 +29,13 @@ export async function GET() {
       },
     });
 
-    const hasAccountingRole = user?.roles.some(
-      (userRole: UserRole) => userRole.role.name === "ACCOUNTING"
+    const hasAccess = user?.roles.some(
+      (userRole: UserRole) => 
+        userRole.role.name === "ADMIN" || 
+        userRole.role.name === "ACCOUNTING"
     );
 
-    if (!hasAccountingRole) {
+    if (!hasAccess) {
       return new NextResponse("Forbidden", { status: 403 });
     }
 

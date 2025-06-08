@@ -175,7 +175,7 @@ export default function AdminUsersPage() {
                       {editingUser === user.id ? (
                         <div className="space-y-2">
                           {roles.map((role) => (
-                            <label key={role.id} className="flex items-center space-x-2">
+                            <label key={`${user.id}-${role.id}`} className="flex items-center space-x-2">
                               <input
                                 type="checkbox"
                                 checked={selectedRoles[user.id]?.includes(role.id)}
@@ -190,7 +190,7 @@ export default function AdminUsersPage() {
                         <div className="flex flex-wrap gap-2">
                           {user.roles.map((userRole) => (
                             <span
-                              key={userRole.role.id}
+                              key={`${user.id}-${userRole.role.id}`}
                               className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                             >
                               {userRole.role.name}

@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import crypto from 'crypto';
-import nodemailer from 'nodemailer';
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
-    console.log('Received forgot password request for email:', email);
 
     if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -20,12 +19,14 @@ export async function POST(request: Request) {
 
     // Return a generic success message to prevent email enumeration
     if (!user) {
-      console.log(`Forgot password attempt for non-existent email: ${email}`);
-      return NextResponse.json({ message: 'If an account with that email exists, a password reset link will be sent.' });
+      return NextResponse.json({
+        message:
+          "If an account with that email exists, a password reset link will be sent.",
+      });
     }
 
     // Generate a unique token
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 3600 * 1000); // Token expires in 1 hour
 
     // Invalidate any existing tokens for this user
@@ -45,8 +46,8 @@ export async function POST(request: Request) {
     // Configure Nodemailer transporter
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_SERVER_HOST,
-      port: parseInt(process.env.EMAIL_SERVER_PORT || '587', 10), // Default to 587 if not set
-      secure: process.env.EMAIL_SERVER_PORT === '465', // true for 465, false for other ports
+      port: parseInt(process.env.EMAIL_SERVER_PORT || "587", 10), // Default to 587 if not set
+      secure: process.env.EMAIL_SERVER_PORT === "465", // true for 465, false for other ports
       auth: {
         user: process.env.EMAIL_SERVER_USER,
         pass: process.env.EMAIL_SERVER_PASSWORD,
@@ -58,21 +59,21 @@ export async function POST(request: Request) {
 
     // Send the email
     const mailOptions = {
-      from: process.env.EMAIL_FROM || 'noreply@yourdomain.com', // Sender address
+      from: process.env.EMAIL_FROM || "noreply@yourdomain.com", // Sender address
       to: email.toLowerCase(), // List of recipients
-      subject: 'Password Reset Request', // Subject line
+      subject: "Password Reset Request", // Subject line
       text: `You requested a password reset. Click the link to reset your password: ${resetUrl}\n\nIf you did not request a password reset, please ignore this email.`, // Plain text body
       html: `<p>You requested a password reset.</p><p>Click the link to reset your password: <a href="${resetUrl}">${resetUrl}</a></p><p>If you did not request a password reset, please ignore this email.</p>`, // HTML body
     };
 
     await transporter.sendMail(mailOptions);
 
-    console.log(`Password reset token generated and email sent to ${email}`);
-
-    return NextResponse.json({ message: 'If an account with that email exists, a password reset link will be sent.' });
-
+    return NextResponse.json({
+      message:
+        "If an account with that email exists, a password reset link will be sent.",
+    });
   } catch (error) {
-    console.error('Error requesting password reset:', error);
-    return NextResponse.json({ error: 'An error occurred.' }, { status: 500 });
+    console.error("Error requesting password reset:", error);
+    return NextResponse.json({ error: "An error occurred." }, { status: 500 });
   }
-} 
+}
