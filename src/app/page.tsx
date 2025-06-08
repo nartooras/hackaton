@@ -1,26 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-interface Todo {
-  id: number;
-  title: string;
-  description: string | null;
-  completed: boolean;
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-}
 
 export default function Home() {
   const { status } = useSession();
   const router = useRouter();
-
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState({ title: "", description: "" });
-  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -29,67 +15,6 @@ export default function Home() {
       router.push("/login");
     }
   }, [status, router]);
-
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchTodos();
-    }
-  }, [status]);
-
-  const fetchTodos = async () => {
-    const response = await fetch('/api/todos');
-    if (response.ok) {
-      const data = await response.json();
-      setTodos(data);
-    } else {
-      console.error('Failed to fetch todos:', response.status, response.statusText);
-      setTodos([]);
-    }
-  };
-
-  const addTodo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTodo.title.trim()) return;
-
-    const response = await fetch('/api/todos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newTodo),
-    });
-
-    if (response.ok) {
-      fetchTodos();
-      setNewTodo({ title: '', description: '' });
-    } else {
-      console.error('Failed to add todo', response.statusText);
-    }
-  };
-
-  const toggleTodo = async (todo: Todo) => {
-    if (!status) return;
-    const response = await fetch(`/api/todos/${todo.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...todo, completed: !todo.completed }),
-    });
-    if (response.ok) {
-      fetchTodos();
-    }
-  };
-
-  const deleteTodo = async (id: number) => {
-    if (!status) return;
-    setDeletingId(id);
-    const response = await fetch(`/api/todos/${id}`, {
-      method: "DELETE",
-    });
-    if (response.ok) {
-      fetchTodos();
-    }
-    setDeletingId(null);
-  };
 
   if (status === "loading") {
     return (

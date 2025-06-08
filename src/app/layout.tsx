@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Cash Flow & Laugh",
+  title: "Cashflow Tuesday",
   description: "A fun and efficient expense management application",
   icons: {
     icon: [
