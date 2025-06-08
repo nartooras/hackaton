@@ -7,20 +7,20 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if user has admin role
-    const hasAdminRole = session.user.roles?.some(
-      (role) => role.role.name === 'ADMIN'
-    )
-
-    if (!hasAdminRole) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!session?.user?.email) {
+      return new NextResponse("Unauthorized", { status: 401 })
     }
 
     const categories = await prisma.category.findMany({
+      include: {
+        categoryEmployees: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        },
+      },
       orderBy: {
         name: 'asc'
       }
@@ -28,10 +28,66 @@ export async function GET() {
 
     return NextResponse.json(categories)
   } catch (error) {
-    console.error('Error fetching categories:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    console.error("[CATEGORIES_GET]", error)
+    return new NextResponse("Internal error", { status: 500 })
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.email) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    const body = await request.json()
+    const { name, description, employeeIds } = body
+
+    if (!name) {
+      return new NextResponse("Name is required", { status: 400 })
+    }
+
+    // Start a transaction to create category and its employees
+    const category = await prisma.$transaction(async (tx) => {
+      // Create the category
+      const newCategory = await tx.category.create({
+        data: {
+          name,
+          description,
+        },
+      })
+
+      // Create employee assignments if any are provided
+      if (employeeIds && employeeIds.length > 0) {
+        await tx.categoryEmployee.createMany({
+          data: employeeIds.map((userId: string) => ({
+            categoryId: newCategory.id,
+            userId,
+          })),
+        })
+      }
+
+      // Return the created category with its employees
+      return tx.category.findUnique({
+        where: {
+          id: newCategory.id,
+        },
+        include: {
+          categoryEmployees: {
+            include: {
+              user: {
+                select: { id: true, name: true, email: true }
+              }
+            }
+          },
+        },
+      })
+    })
+
+    return NextResponse.json(category)
+  } catch (error) {
+    console.error("[CATEGORIES_POST]", error)
+    return new NextResponse("Internal error", { status: 500 })
   }
 } 
