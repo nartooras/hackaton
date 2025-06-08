@@ -27,6 +27,13 @@ export const authOptions: NextAuthOptions = {
               include: {
                 role: true
               }
+            },
+            managedUsers: {
+              select: {
+                id: true,
+                name: true,
+                email: true
+              }
             }
           }
         });
@@ -52,7 +59,8 @@ export const authOptions: NextAuthOptions = {
             role: {
               name: userRole.role.name
             }
-          }))
+          })),
+          managedUsers: user.managedUsers
         };
       }
     })
@@ -79,6 +87,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.roles = user.roles;
+        token.managedUsers = user.managedUsers;
       }
       return token;
     },
@@ -86,6 +95,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.roles = token.roles;
+        session.user.managedUsers = token.managedUsers;
       }
       return session;
     }

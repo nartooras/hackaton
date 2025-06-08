@@ -3,30 +3,18 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { User, Role } from '@prisma/client'
 
-interface Role {
-  id: string;
-  name: string;
-  description: string | null;
-}
-
-interface User {
-  id: string;
-  name: string | null;
-  email: string | null;
+interface UserWithRoles extends User {
   roles: {
-    role: {
-      id: string;
-      name: string;
-      description: string | null;
-    };
+    role: Role;
   }[];
 }
 
 export default function AdminUsersPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [users, setUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<UserWithRoles[]>([])
   const [roles, setRoles] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -65,7 +53,7 @@ export default function AdminUsersPage() {
 
         // Initialize selected roles for each user
         const initialSelectedRoles: { [key: string]: string[] } = {}
-        usersData.forEach((user: User) => {
+        usersData.forEach((user: UserWithRoles) => {
           initialSelectedRoles[user.id] = user.roles.map(r => r.role.id)
         })
         setSelectedRoles(initialSelectedRoles)
@@ -134,9 +122,17 @@ export default function AdminUsersPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            User Management
-          </h1>
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Users
+            </h1>
+            <button
+              onClick={() => router.push('/admin/users/new')}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Add New User
+            </button>
+          </div>
 
           {error && (
             <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-200">
@@ -216,12 +212,14 @@ export default function AdminUsersPage() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => setEditingUser(user.id)}
-                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-xs font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                          Edit Roles
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => router.push(`/admin/users/${user.id}`)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            Edit
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
