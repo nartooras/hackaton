@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
             filename: fileUrl.split('/').pop() || 'invoice',
             fileType: 'application/pdf',
             fileSize: 0, // You might want to get this from the file
-            url: fileUrl,
+            url: fileUrl.startsWith('/') ? fileUrl.slice(1) : fileUrl, // Remove leading slash if present
           },
         },
       },

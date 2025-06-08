@@ -50,7 +50,8 @@ export async function POST(request: NextRequest) {
           size: file.size,
           type: file.type,
           uploadedAt: new Date().toISOString(),
-          extracted
+          extracted,
+          url: `${session.user?.email}/${filename}`
         }
       })
     )
