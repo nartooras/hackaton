@@ -8,6 +8,10 @@ export default function Navbar() {
   const { data: session } = useSession()
   const [darkMode, setDarkMode] = useState(false)
 
+  // Debug session and roles
+  console.log('Session:', session)
+  console.log('User roles:', session?.user?.roles)
+
   // On mount, set darkMode from localStorage or system preference
   useEffect(() => {
     const theme = localStorage.getItem("theme");
@@ -64,7 +68,7 @@ export default function Navbar() {
               />
             </svg>
           </Link>
-          {session.user.roles?.includes('Admin') && (
+          {session.user.roles?.map((role: any) => role.role.name).filter((roleName: string | undefined) => roleName !== undefined).some((roleName: string) => roleName.toLowerCase() === 'admin') && (
             <Link
               href="/admin/users"
               className="flex items-center gap-2 text-white/90 hover:text-white focus:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-3 py-1"
@@ -93,7 +97,7 @@ export default function Navbar() {
           )}
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setDarkMode((d) => !d)}
+              onClick={() => setDarkMode((d: boolean) => !d)}
               className="p-2 rounded-lg text-white/90 hover:text-white focus:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50"
               aria-label="Toggle dark mode"
             >
