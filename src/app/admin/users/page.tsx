@@ -26,14 +26,14 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login')
-    } else if (!session?.user?.roles?.includes('Admin')) {
+    } else if (!session?.user?.roles?.map((role: any) => role.role.name).some((roleName: string) => roleName.toLowerCase() === 'admin')) {
       router.push('/')
     }
   }, [session, status, router])
 
   useEffect(() => {
     const fetchUsers = async () => {
-      if (!session?.user?.roles?.includes('Admin')) return
+      if (!session?.user?.roles?.map((role: any) => role.role.name).some((roleName: string) => roleName.toLowerCase() === 'admin')) return
 
       try {
         const response = await fetch('/api/admin/users')
@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
     )
   }
 
-  if (!session || !session.user.roles?.includes('Admin')) {
+  if (!session || !session.user.roles?.map((role: any) => role.role.name).some((roleName: string) => roleName.toLowerCase() === 'admin')) {
     return null
   }
 
