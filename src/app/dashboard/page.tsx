@@ -1,140 +1,60 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import DashboardBlocks from './components/DashboardBlocks'
+import Link from 'next/link'
 
-interface DashboardStats {
-  totalExpenses: number;
-  pendingExpenses: number;
-  approvedExpenses: number;
-  rejectedExpenses: number;
-  totalAmount: number;
-}
+export default function DashboardPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
-interface UserRole {
-  role: {
-    name: string;
-  };
-}
-
-interface SessionUser {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-  roles?: UserRole[];
-}
-
-export default function Dashboard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated") {
-      // Check if user has ADMIN or ACCOUNTING role
-      const user = session?.user as SessionUser;
-      const hasAccess = user?.roles?.some(
-        (role) => role.role.name === "ADMIN" || role.role.name === "ACCOUNTING"
-      );
-
-      if (!hasAccess) {
-        router.push("/expenses");
-      } else {
-        fetchDashboardStats();
-      }
-    }
-  }, [status, session, router]);
-
-  const fetchDashboardStats = async () => {
-    try {
-      const response = await fetch("/api/dashboard/stats");
-      if (response.ok) {
-        const data = await response.json();
-        setStats(data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch dashboard stats:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (status === "loading" || loading) {
+  if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-xl font-semibold text-blue-800 dark:text-blue-200 animate-pulse">
           Loading...
         </div>
       </div>
-    );
+    )
   }
 
-  if (!stats) {
-    return null;
+  if (!session) {
+    router.push('/login')
+    return null
   }
+
+  const isAdminOrAccountant = session.user?.roles?.some(
+    (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTANT'
+  )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 p-6">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Accounting Dashboard
-        </h1>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Total Expenses Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Total Expenses
-            </h3>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-              {stats.totalExpenses}
-            </p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Dashboard
+            </h1>
+            {isAdminOrAccountant && (
+              <Link
+                href="/reports"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                View Reports
+              </Link>
+            )}
           </div>
 
-          {/* Pending Expenses Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Pending Expenses
-            </h3>
-            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
-              {stats.pendingExpenses}
-            </p>
-          </div>
-
-          {/* Approved Expenses Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Approved Expenses
-            </h3>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-              {stats.approvedExpenses}
-            </p>
-          </div>
-
-          {/* Total Amount Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Total Amount
-            </h3>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              €{stats.totalAmount.toLocaleString()}
-            </p>
-          </div>
-        </div>
-
-        {/* Recent Expenses Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Recent Expenses
-          </h2>
-          {/* We'll add the table component here in the next step */}
-        </div>
+          <DashboardBlocks />
+        </motion.div>
       </div>
     </div>
-  );
+  )
 } 

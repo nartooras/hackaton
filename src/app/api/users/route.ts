@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { ExpenseStatus } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(request: Request) {
   try {
@@ -12,29 +11,27 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const search = searchParams.get('search') || ''
 
-    const expenses = await prisma.expense.findMany({
+    const users = await prisma.user.findMany({
       where: {
-        status: status?.toUpperCase() as ExpenseStatus,
-      },
-      include: {
-        submittedBy: {
-          select: {
-            name: true,
-          },
+        name: {
+          contains: search,
         },
       },
-      orderBy: {
-        createdAt: 'desc',
+      select: {
+        id: true,
+        name: true,
       },
-      take: limit,
+      orderBy: {
+        name: 'asc',
+      },
+      take: 10, // Limit results to prevent overwhelming the UI
     })
 
-    return NextResponse.json(expenses)
+    return NextResponse.json(users)
   } catch (error) {
-    console.error('Error fetching expenses:', error)
+    console.error('Error fetching users:', error)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 } 
