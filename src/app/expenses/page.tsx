@@ -221,6 +221,10 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleDeleteExpense = (expenseId: string) => {
+    setExpenses(expenses.filter(expense => expense.id !== expenseId));
+  };
+
   // Cleanup preview URLs when component unmounts
   useEffect(() => {
     return () => {
@@ -266,7 +270,10 @@ export default function ExpensesPage() {
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <SubmittedExpenses expenses={expenses} />
+            <SubmittedExpenses 
+              expenses={expenses} 
+              onDelete={handleDeleteExpense}
+            />
           </div>
           <div>
             <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 backdrop-blur-md animate-fade-in-up">
