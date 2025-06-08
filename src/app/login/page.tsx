@@ -32,14 +32,15 @@ export default function LoginPage() {
     if (result?.error) {
       setError(result.error)
     } else {
-      router.push('/')
+      router.push('/expenses')
     }
   }
 
   return (
     <main className="min-h-screen flex items-center justify-center p-4 sm:p-8 bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800 transition-colors">
       <div className="max-w-md w-full bg-white/80 dark:bg-gray-900/80 rounded-xl shadow-lg p-6 space-y-6 backdrop-blur-md animate-fade-in-up">
-        <h1 className="text-3xl font-bold text-center text-blue-900 dark:text-blue-200 tracking-tight drop-shadow-sm">Login</h1>
+        <h1 className="text-3xl font-bold text-center text-blue-900 dark:text-blue-200 tracking-tight drop-shadow-sm">Welcome to Cash Flow & Laugh</h1>
+        <p className="text-center text-gray-600 dark:text-gray-400">Please login to continue</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

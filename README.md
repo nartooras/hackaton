@@ -1,92 +1,50 @@
-# hackaton
+# Cashflow Tuesday
 
-A modern AI-powered Todo application built with Next.js, TypeScript, Tailwind CSS, and SQLite.
+## Purpose
+Cashflow Tuesday is a comprehensive expense management system designed for the organization 'Tuesday'. It streamlines the process of submitting, reviewing, and managing employee expenses while maintaining proper financial controls and accountability.
 
-Repository: [https://github.com/nartooras/hackaton](https://github.com/nartooras/hackaton)
+## Core Functionality
 
-## Features
+### Employee Expense Submission
+- Create new expense entries with detailed descriptions
+- Categorize expenses from predefined categories
+- Specify payment amounts
+- Indicate billing type (internal or project)
+- Attach supporting documentation (receipts, invoices, photos)
+- Track expense status and approval progress
 
-- Create, read, update, and delete todos
-- Mark todos as complete/incomplete
-- Add descriptions to todos
-- Persistent storage with SQLite
-- Modern UI with Tailwind CSS
-- Full-stack TypeScript support
-- Light/Dark mode toggle with theme persistence
-- Smooth UI animations
-- AI-ready architecture for future enhancements
+### Manager Review
+- Review and approve/decline expense reports from team members
+- Access team expense history and analytics
+- Support dual roles (employee and manager capabilities)
 
-## Tech Stack
+### Committee Review
+- Employees can be part of specialized expense committees
+- Committees are responsible for specific expense categories
+- Committee members review and approve/decline expenses within their category
+- Multi-level approval process combining manager and committee reviews
+- Committee members can view and analyze expenses in their category
 
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS (with custom dark mode and animations)
-- Prisma ORM
-- SQLite Database
-- pnpm (fast, modern package manager)
+### Accounting Dashboard
+- Comprehensive view of all organizational expenses
+- Financial analytics and reporting
+- Expense tracking and reconciliation
+- Audit trail and compliance monitoring
 
-## Getting Started
+## Key Features
+- Multi-level approval workflow (Manager + Committee)
+- Document attachment support
+- Role-based access control
+- Real-time expense tracking
+- Financial reporting and analytics
+- Project vs. internal expense categorization
+- Committee-based expense category management
 
-1. Clone the repository:
-```bash
-git clone https://github.com/nartooras/hackaton.git
-cd hackaton
-```
+## Target Users
+1. Employees submitting expenses
+2. Managers reviewing team expenses
+3. Committee members reviewing category-specific expenses
+4. Accounting department for financial oversight
+5. Administrators managing the system
 
-2. Install dependencies:
-```bash
-pnpm install
-```
-
-3. Set up the database:
-```bash
-npx prisma db push
-```
-
-4. Run the development server:
-```bash
-pnpm dev
-```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Usage
-
-- Add todos with a title and optional description
-- Mark todos as complete/incomplete
-- Delete todos
-- Toggle between light and dark mode (theme is remembered)
-- Enjoy smooth UI transitions and a modern, accessible interface
-
-## Development
-
-- The application uses Next.js App Router for routing
-- API routes are located in `src/app/api`
-- Database schema is defined in `prisma/schema.prisma`
-- Main UI components are in `src/app`
-- Tailwind CSS is configured in `tailwind.config.js` and custom styles/animations in `src/app/globals.css`
-- Theme toggle logic is in `src/app/page.tsx`
-
-## Database
-
-The application uses SQLite with Prisma ORM. The database file is located at `prisma/dev.db`. Note that this file is included in `.gitignore` as it's a local development database. Each developer will need to run `npx prisma db push` to create their own local database.
-
-## Collaboration
-
-- Repository: [https://github.com/nartooras/hackaton](https://github.com/nartooras/hackaton)
-- Use feature branches for new work (e.g., `git checkout -b feature/your-feature`)
-- Open Pull Requests for review
-- Follow conventional commit messages
-- Keep the codebase clean and well-documented
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is open source and available under the [MIT License](LICENSE).
+This application aims to simplify expense management while ensuring proper financial controls and transparency throughout the organization.

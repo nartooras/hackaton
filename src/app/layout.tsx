@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "AI-Built Todo App",
-  description: "A modern Todo application built entirely with AI assistance",
+  title: "Cash Flow & Laugh",
+  description: "A fun and efficient expense management application",
   icons: {
     icon: [
       {
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
       },
     ],
   },
-  keywords: ["todo", "next.js", "typescript", "sqlite", "prisma", "ai-built"],
-  authors: [{ name: "AI-Assisted Development" }],
+  keywords: ["expenses", "next.js", "typescript", "sqlite", "prisma", "expense management"],
+  authors: [{ name: "Commit and Regret Team" }],
 };
 
 export default function RootLayout({
