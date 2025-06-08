@@ -42,7 +42,7 @@ export default function Navbar() {
             href="/"
             className="text-2xl font-extrabold text-white hover:text-blue-100 focus:text-blue-100 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-2 py-1"
           >
-            Cash Flow & Laugh
+            <span className="text-xl font-bold text-blue-900 dark:text-blue-200">Cashflow Tuesday</span>
           </Link>
           <div className="flex items-center gap-4">
             <button
