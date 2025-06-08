@@ -25,6 +25,17 @@ export async function GET(request: Request) {
             name: true,
           },
         },
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        attachments: {
+          select: {
+            filename: true,
+            url: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
