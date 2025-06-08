@@ -27,11 +27,62 @@ export default function ExpensesPage() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [uploadUrl, setUploadUrl] = useState('')
+  const [uploadToken, setUploadToken] = useState('')
   const qrCodeRef = useRef<HTMLDivElement>(null)
 
+  // Generate upload token and URL
   useEffect(() => {
-    setUploadUrl(`${window.location.origin}/expenses/upload`)
-  }, [])
+    const generateUploadToken = async () => {
+      try {
+        const response = await fetch('/api/expenses/upload-token', {
+          method: 'POST',
+        })
+        
+        if (!response.ok) {
+          throw new Error('Failed to generate upload token')
+        }
+
+        const data = await response.json()
+        setUploadToken(data.token)
+        setUploadUrl(`${window.location.origin}/expenses/upload?token=${data.token}`)
+      } catch (error) {
+        console.error('Error generating upload token:', error)
+      }
+    }
+
+    if (status === 'authenticated') {
+      generateUploadToken()
+    }
+  }, [status])
+
+  // Refresh token every 14 minutes (before the 15-minute expiry)
+  useEffect(() => {
+    if (!uploadToken) return
+
+    const interval = setInterval(() => {
+      const generateUploadToken = async () => {
+        try {
+          const response = await fetch('/api/expenses/upload-token', {
+            method: 'POST',
+          })
+          
+          if (!response.ok) {
+            throw new Error('Failed to generate upload token')
+          }
+
+          const data = await response.json()
+          setUploadToken(data.token)
+          setUploadUrl(`${window.location.origin}/expenses/upload?token=${data.token}`)
+        } catch (error) {
+          console.error('Error generating upload token:', error)
+        }
+      }
+
+      generateUploadToken()
+    }, 14 * 60 * 1000) // 14 minutes
+
+    return () => clearInterval(interval)
+  }, [uploadToken])
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map(file => ({
