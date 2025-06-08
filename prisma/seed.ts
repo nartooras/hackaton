@@ -143,6 +143,14 @@ async function main() {
         description: 'Professional development and training',
       },
     }),
+    prisma.category.upsert({
+      where: { name: 'Other' },
+      update: {},
+      create: {
+        name: 'Other',
+        description: 'Miscellaneous expenses',
+      },
+    }),
   ])
 
   // Create committees
