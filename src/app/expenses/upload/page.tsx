@@ -1,16 +1,48 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useState, useRef, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function MobileUploadPage() {
-  const { status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [files, setFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Verify token on page load
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (!token) {
+      setError('Invalid upload link')
+      return
+    }
+
+    const verifyToken = async () => {
+      try {
+        const response = await fetch('/api/expenses/verify-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Invalid token')
+        }
+
+        setIsAuthenticated(true)
+      } catch (error) {
+        setError('Invalid or expired upload link')
+        console.error('Token verification error:', error)
+      }
+    }
+
+    verifyToken()
+  }, [searchParams])
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(event.target.files || [])
@@ -60,6 +92,7 @@ export default function MobileUploadPage() {
       files.forEach(file => {
         formData.append('files', file)
       })
+      formData.append('token', searchParams.get('token') || '')
 
       const response = await fetch('/api/expenses/upload', {
         method: 'POST',
@@ -85,17 +118,28 @@ export default function MobileUploadPage() {
     setFiles(prev => prev.filter((_, i) => i !== index))
   }
 
-  if (status === 'loading') {
+  if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100">
-        <div className="text-xl font-semibold text-blue-800 animate-pulse">Loading...</div>
+        <div className="text-center p-6 bg-white rounded-lg shadow-md">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Go to Login
+          </button>
+        </div>
       </div>
     )
   }
 
-  if (status === 'unauthenticated') {
-    router.push('/login')
-    return null
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100">
+        <div className="text-xl font-semibold text-blue-800 animate-pulse">Verifying...</div>
+      </div>
+    )
   }
 
   return (
