@@ -17,6 +17,7 @@ const LineItemSchema = z.object({
 }).describe("Detailed breakdown of items or services billed on the invoice, with confidentiality score");
 
 const InvoiceSchema = z.object({
+<<<<<<< HEAD
   invoice_id: ConfidentialString("Unique invoice number or identifier used for tracking and reference"),
   company_name: ConfidentialString("Name of the seller or service provider issuing the invoice"),
   company_code: ConfidentialString("Registration code of the seller/provider company"),
@@ -26,6 +27,17 @@ const InvoiceSchema = z.object({
   total_amount: ConfidentialString("Total monetary amount stated on the invoice"),
   total_amount_currency: ConfidentialString("Currency used for the total invoice amount, e.g., EUR, USD"),
   line_items: z.array(LineItemSchema).optional().describe("List of individual line items included in the invoice, with quantities and pricing"),
+=======
+  invoice_id: ConfidentialString("Invoice number or ID"),
+  company_name: ConfidentialString("Company from which the goods/services were bought"),
+  company_code: ConfidentialString("Company registration code"),
+  vat_payer_code: ConfidentialString("VAT payer code"),
+  company_address: ConfidentialString("Company address"),
+  invoice_date: ConfidentialString("Date of the invoice"),
+  total_amount: ConfidentialString("Total amount on the invoice"),
+  total_amount_curr: ConfidentialString("Currency of the total amount"),
+  line_items: z.array(LineItemSchema).optional().describe("List of line items in the invoice"),
+>>>>>>> dc04ce6 (Change extracted field descriptions)
 });
 
 export type InvoiceData = z.infer<typeof InvoiceSchema>;
