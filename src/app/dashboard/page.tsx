@@ -40,8 +40,8 @@ export default function DashboardPage() {
     )
   }
 
-  const isAdminOrAccountant = session.user?.roles?.some(
-    (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTANT'
+  const isAdminOrAccounting = session.user?.roles?.some(
+    (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTING'
   )
 
   return (
@@ -57,7 +57,7 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Dashboard
             </h1>
-            {isAdminOrAccountant && (
+            {isAdminOrAccounting && (
               <Link
                 href="/reports"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

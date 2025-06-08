@@ -94,7 +94,7 @@ export default function ReportsTable({
                   {expense.description}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
-                  {expense.category}
+                  {expense.category?.name || 'Uncategorized'}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
                   {new Intl.NumberFormat('en-US', {
