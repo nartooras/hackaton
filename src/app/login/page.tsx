@@ -11,13 +11,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const { status } = useSession();
+  const { status, data: session } = useSession();
 
   useEffect(() => {
     if (status === 'authenticated') {
       router.push('/');
     }
-  }, [status, router]);
+  }, [status, router, session]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
