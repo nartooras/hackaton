@@ -35,12 +35,12 @@ export default function ReportsPage() {
       return
     }
 
-    // Check if user has admin or accountant role
-    const isAdminOrAccountant = session.user?.roles?.some(
-      (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTANT'
+    // Check if user has admin or accounting role
+    const isAdminOrAccounting = session.user?.roles?.some(
+      (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTING'
     )
 
-    if (!isAdminOrAccountant) {
+    if (!isAdminOrAccounting) {
       router.push('/dashboard')
       return
     }
@@ -53,7 +53,7 @@ export default function ReportsPage() {
   // Separate effect for filters to prevent unnecessary redirects
   useEffect(() => {
     if (session?.user?.roles?.some(
-      (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTANT'
+      (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTING'
     )) {
       fetchExpenses()
     }
@@ -149,11 +149,11 @@ export default function ReportsPage() {
   }
 
   // Check role after session is available
-  const isAdminOrAccountant = session.user?.roles?.some(
-    (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTANT'
+  const isAdminOrAccounting = session.user?.roles?.some(
+    (userRole: any) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTING'
   )
 
-  if (!isAdminOrAccountant) {
+  if (!isAdminOrAccounting) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-xl font-semibold text-red-600 dark:text-red-400">

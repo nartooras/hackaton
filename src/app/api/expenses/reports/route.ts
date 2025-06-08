@@ -8,13 +8,13 @@ import { ExpenseStatus, Category } from '@prisma/client'
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.email) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    // Check if user has admin or accountant role
+    // Check if user has admin or accounting role
     const user = await prisma.user.findUnique({
-      where: { email: session.user?.email! },
+      where: { email: session.user.email },
       include: {
         roles: {
           include: {
@@ -24,12 +24,16 @@ export async function GET(request: Request) {
       },
     })
 
-    const isAdminOrAccountant = user?.roles.some(
-      (userRole) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTANT'
+    if (!user) {
+      return new NextResponse('User not found', { status: 404 })
+    }
+
+    const isAdminOrAccounting = user.roles.some(
+      (userRole) => userRole.role.name === 'ADMIN' || userRole.role.name === 'ACCOUNTING'
     )
 
-    if (!isAdminOrAccountant) {
-      return new NextResponse('Unauthorized', { status: 401 })
+    if (!isAdminOrAccounting) {
+      return new NextResponse('Forbidden', { status: 403 })
     }
 
     const { searchParams } = new URL(request.url)
@@ -73,6 +77,11 @@ export async function GET(request: Request) {
       where,
       include: {
         submittedBy: {
+          select: {
+            name: true,
+          },
+        },
+        category: {
           select: {
             name: true,
           },
