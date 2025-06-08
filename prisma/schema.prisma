@@ -11,31 +11,39 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?  @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
   password      String?
   accounts      Account[]
   sessions      Session[]
   roles         UserRole[]
+  expenses      Expense[] @relation("SubmittedExpenses")
+  managedUsers  User[]    @relation("UserManager")
+  manager       User?     @relation("UserManager", fields: [managerId], references: [id])
+  managerId     String?
+  committees    CommitteeMember[]
+  approvals     Approval[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt @default(now())
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
-  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -56,14 +64,77 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  email     String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
+model Expense {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  amount      Float
+  currency    String    @default("EUR")
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  status      ExpenseStatus @default(PENDING)
+  billingType BillingType
+  submittedBy User      @relation("SubmittedExpenses", fields: [submittedById], references: [id])
+  submittedById String
+  attachments Attachment[]
+  approvals   Approval[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
 
-  @@index([email])
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  expenses    Expense[]
+  committees  Committee[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Committee {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  category    Category  @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  members     CommitteeMember[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model CommitteeMember {
+  id          String    @id @default(cuid())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String
+  committee   Committee @relation(fields: [committeeId], references: [id])
+  committeeId String
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, committeeId])
+}
+
+model Attachment {
+  id          String    @id @default(cuid())
+  filename    String
+  fileType    String
+  fileSize    Int
+  url         String
+  expense     Expense   @relation(fields: [expenseId], references: [id])
+  expenseId   String
+  createdAt   DateTime  @default(now())
+}
+
+model Approval {
+  id          String    @id @default(cuid())
+  expense     Expense   @relation(fields: [expenseId], references: [id])
+  expenseId   String
+  approver    User      @relation(fields: [approverId], references: [id])
+  approverId  String
+  status      ApprovalStatus
+  comment     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Role {
@@ -84,4 +155,32 @@ model UserRole {
   createdAt DateTime @default(now())
 
   @@unique([userId, roleId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([email])
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum ApprovalStatus {
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+enum BillingType {
+  INTERNAL
+  PROJECT
 }
