@@ -185,7 +185,6 @@ export default function ReportsPage() {
           </div>
 
           <ReportsFilters
-            users={users}
             filters={filters}
             onFilterChange={setFilters}
             onExport={handleExport}

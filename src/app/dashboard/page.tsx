@@ -5,10 +5,20 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import DashboardBlocks from './components/DashboardBlocks'
 import Link from 'next/link'
+import { useEffect } from 'react'
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'loading') return
+
+    if (!session) {
+      router.push('/login')
+      return
+    }
+  }, [session, status, router])
 
   if (status === 'loading') {
     return (
@@ -21,8 +31,13 @@ export default function DashboardPage() {
   }
 
   if (!session) {
-    router.push('/login')
-    return null
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-xl font-semibold text-blue-800 dark:text-blue-200 animate-pulse">
+          Loading...
+        </div>
+      </div>
+    )
   }
 
   const isAdminOrAccountant = session.user?.roles?.some(
