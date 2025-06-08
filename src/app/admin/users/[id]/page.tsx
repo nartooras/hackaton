@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { User, Role } from "@prisma/client";
 import Select, { MultiValue } from 'react-select'
+import { motion } from 'framer-motion'
 
 interface UserWithRoles extends User {
   roles: {
@@ -183,7 +184,12 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+        >
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Edit User
@@ -203,7 +209,11 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Name
               </label>
@@ -215,9 +225,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-base py-3 px-4"
               />
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+            >
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email
               </label>
@@ -229,9 +243,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-base py-3 px-4"
               />
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
@@ -244,9 +262,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                 placeholder="Leave blank to keep current password"
                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:text-white text-base py-3 px-4"
               />
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+            >
               <label htmlFor="roleId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Role
               </label>
@@ -264,9 +286,13 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   </option>
                 ))}
               </select>
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5 }}
+            >
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Managed Employees
               </label>
@@ -299,9 +325,14 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
                   }),
                 }}
               />
-            </div>
+            </motion.div>
 
-            <div className="flex justify-end space-x-3">
+            <motion.div 
+              className="flex justify-end space-x-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
               <button
                 type="button"
                 onClick={() => router.push('/admin/users')}
@@ -316,9 +347,9 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
               >
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>
-            </div>
+            </motion.div>
           </form>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

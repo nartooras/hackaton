@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { User, Role } from '@prisma/client'
+import { motion } from 'framer-motion'
 
 interface UserWithRoles extends User {
   roles: {
@@ -121,7 +122,12 @@ export default function AdminUsersPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6"
+        >
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Users
@@ -159,8 +165,14 @@ export default function AdminUsersPage() {
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                {users.map((user, index) => (
+                  <motion.tr
+                    key={user.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {user.name || 'N/A'}
                     </td>
@@ -169,7 +181,11 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {editingUser === user.id ? (
-                        <div className="space-y-2">
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="space-y-2"
+                        >
                           {roles.map((role) => (
                             <label key={`${user.id}-${role.id}`} className="flex items-center space-x-2">
                               <input
@@ -181,7 +197,7 @@ export default function AdminUsersPage() {
                               <span className="text-sm text-gray-900 dark:text-gray-100">{role.name}</span>
                             </label>
                           ))}
-                        </div>
+                        </motion.div>
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {user.roles.map((userRole) => (
@@ -197,7 +213,11 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {editingUser === user.id ? (
-                        <div className="flex space-x-2">
+                        <motion.div 
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="flex space-x-2"
+                        >
                           <button
                             onClick={() => handleSaveRoles(user.id)}
                             className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -210,24 +230,24 @@ export default function AdminUsersPage() {
                           >
                             Cancel
                           </button>
-                        </div>
+                        </motion.div>
                       ) : (
                         <div className="flex space-x-2">
                           <button
                             onClick={() => router.push(`/admin/users/${user.id}`)}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
                           >
                             Edit
                           </button>
                         </div>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   )
