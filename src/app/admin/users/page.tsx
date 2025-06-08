@@ -14,6 +14,7 @@ interface User {
       description: string | null;
     };
   }[];
+  enabled: boolean;
 }
 
 interface Role {
@@ -125,6 +126,32 @@ export default function AdminUsersPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update roles')
       console.error('Error updating roles:', err)
+    }
+  }
+
+  const handleToggleEnabled = async (user: User) => {
+    if (!editingUser) return
+
+    try {
+      const response = await fetch(`/api/admin/users/${editingUser}/toggle-enabled`, {
+        method: 'PUT',
+      })
+
+      if (!response.ok) {
+        const error = await response.text()
+        throw new Error(error)
+      }
+
+      // Update the users list
+      setUsers(users.map(u => 
+        u.id === editingUser ? { ...u, enabled: !u.enabled } : u
+      ))
+
+      setEditingUser(null)
+      setSelectedRoles([])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to toggle user enabled status')
+      console.error('Error toggling user enabled status:', err)
     }
   }
 
@@ -243,12 +270,24 @@ export default function AdminUsersPage() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => handleEditRoles(user)}
-                          className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        >
-                          Edit Roles
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditRoles(user)}
+                            className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          >
+                            Edit Roles
+                          </button>
+                          <button
+                            onClick={() => handleToggleEnabled(user)}
+                            className={`px-3 py-1 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                              user.enabled
+                                ? 'text-red-600 bg-red-100 hover:bg-red-200 focus:ring-red-500'
+                                : 'text-green-600 bg-green-100 hover:bg-green-200 focus:ring-green-500'
+                            }`}
+                          >
+                            {user.enabled ? 'Disable' : 'Enable'}
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
