@@ -12,6 +12,19 @@ interface UserRole {
   };
 }
 
+interface SessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  roles?: UserRole[];
+  managedUsers?: {
+    id: string;
+    name: string | null;
+    email: string | null;
+  }[];
+}
+
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [darkMode, setDarkMode] = useState(false);
@@ -76,9 +89,7 @@ export default function Navbar() {
     (role: UserRole) => role.role.name === "ACCOUNTING"
   );
 
-  const hasManagerRole = session.user.roles?.some(
-    (role: UserRole) => role.role.name === "MANAGER"
-  );
+  const hasAssignedEmployees = session.user && (session.user as SessionUser).managedUsers?.length > 0;
 
   const canAccessDashboard = hasAdminRole || hasAccountingRole;
 
@@ -139,8 +150,8 @@ export default function Navbar() {
         </svg>
       </Link>
 
-      {/* Manage - for Managers */}
-      {hasManagerRole && (
+      {/* Manage - for users with assigned employees */}
+      {hasAssignedEmployees && (
         <Link
           href="/manage"
           className="flex items-center gap-2 text-white hover:text-white focus:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-3 py-1"
@@ -241,14 +252,14 @@ export default function Navbar() {
     <nav className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-gray-800 dark:to-gray-900 backdrop-blur-md border-b border-blue-500/20 dark:border-gray-700 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link
-            href={getDefaultLandingPage()}
-            className="text-2xl font-extrabold text-white hover:text-blue-100 focus:text-blue-100 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-2 py-1"
-          >
-            <span className="text-xl font-bold text-blue-900 dark:text-blue-200">
-              Cashflow Tuesday
-            </span>
-          </Link>
+          <div className="flex items-center">
+            <Link
+              href={getDefaultLandingPage()}
+              className="flex items-center gap-2 text-white hover:text-white focus:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-3 py-1"
+            >
+              <span className="text-xl font-bold">Cashflow Tuesday</span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4">
