@@ -1,39 +1,75 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
+
+interface UserRole {
+  role: {
+    name: string;
+  };
+}
+
+interface SessionUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  roles?: UserRole[];
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const { status, data: session } = useSession();
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/');
-    }
-  }, [status, router, session]);
+      // Check if user has ACCOUNTING role
+      const user = session?.user as SessionUser
+      const hasAccountingRole = user?.roles?.some(
+        (role) => role.role.name === "ACCOUNTING"
+      )
 
-  const handleSubmit = async (e: React.FormEvent) => {
+      // Redirect based on role
+      if (hasAccountingRole) {
+        router.push('/dashboard')
+      } else {
+        router.push('/expenses')
+      }
+    }
+  }, [status, session, router])
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setError(null)
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    })
+    try {
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      })
 
-    if (result?.error) {
-      setError(result.error)
-    } else {
-      router.push('/expenses')
+      if (result?.error) {
+        setError('Invalid email or password')
+      }
+    } catch (error) {
+      setError('An error occurred. Please try again.')
     }
+  }
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 to-blue-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="text-xl font-semibold text-blue-800 dark:text-blue-200 animate-pulse">
+          Loading...
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -43,6 +79,8 @@ export default function LoginPage() {
         <p className="text-center text-gray-600 dark:text-gray-400">Please login to continue</p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
             <input
@@ -66,13 +104,11 @@ export default function LoginPage() {
             />
           </div>
           
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
           <button
             type="submit"
             className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-md shadow-sm hover:from-blue-600 hover:to-indigo-600 active:scale-95 transition-all cursor-pointer font-semibold focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
-            Login
+            Sign in
           </button>
         </form>
         
