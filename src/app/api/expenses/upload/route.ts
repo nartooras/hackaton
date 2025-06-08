@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { writeFile, mkdir } from 'fs/promises'
+import { join, dirname } from 'path'
+import { extractInvoiceDataFromImage, InvoiceData } from '@/app/services/invoiceExtractor';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,15 +32,25 @@ export async function POST(request: NextRequest) {
         const filename = `${timestamp}-${file.name}`
         const filepath = join(uploadDir, filename)
         
+        console.log("Writing file to:", filepath);
+        await mkdir(dirname(filepath), { recursive: true });
         // Save the file
         await writeFile(filepath, buffer)
-        
+
+        let extracted: InvoiceData | null = null;
+        try {
+          extracted = await extractInvoiceDataFromImage(filepath);
+        } catch (e) {
+          console.error(`Failed to extract entities from ${filename}:`, e);
+        }
+
         return {
           filename,
           originalName: file.name,
           size: file.size,
           type: file.type,
-          uploadedAt: new Date().toISOString()
+          uploadedAt: new Date().toISOString(),
+          extracted
         }
       })
     )
