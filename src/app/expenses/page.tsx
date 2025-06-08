@@ -31,7 +31,7 @@ interface Expense {
   amount: number;
   currency: string;
   status: "PENDING" | "APPROVED" | "REJECTED";
-  submittedAt: string;
+  createdAt: string;
   category: {
     name: string;
   };
@@ -39,6 +39,9 @@ interface Expense {
     filename: string;
     url: string;
   }[];
+  submittedBy: {
+    name: string;
+  };
 }
 
 export default function ExpensesPage() {
@@ -65,7 +68,7 @@ export default function ExpensesPage() {
           throw new Error('Failed to fetch expenses');
         }
         const data = await response.json();
-        setExpenses(data.expenses);
+        setExpenses(data);
       } catch (error) {
         console.error('Error fetching expenses:', error);
       }

@@ -11,25 +11,27 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  accounts      Account[]
-  sessions      Session[]
-  roles         UserRole[]
-  expenses      Expense[] @relation("SubmittedExpenses")
-  managedUsers  User[]    @relation("UserManager")
-  manager       User?     @relation("UserManager", fields: [managerId], references: [id])
-  managerId     String?
-  committees    CommitteeMember[]
-  approvals     Approval[]
-  categories    CategoryEmployee[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt @default(now())
-  uploadTokens  UploadToken[]
+  id                String    @id @default(cuid())
+  name              String?
+  email             String?   @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  accounts          Account[]
+  sessions          Session[]
+  submittedExpenses Expense[] @relation("SubmittedExpenses")
+  approvedExpenses  Expense[] @relation("ApprovedExpenses")
+  rejectedExpenses  Expense[] @relation("RejectedExpenses")
+  roles             UserRole[]
+  managedUsers      User[]    @relation("UserManager")
+  manager           User?     @relation("UserManager", fields: [managerId], references: [id])
+  managerId         String?
+  committees       CommitteeMember[]
+  approvals         Approval[]
+  categories        CategoryEmployee[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt @default(now())
+  uploadTokens      UploadToken[]
 }
 
 model Account {
@@ -67,21 +69,29 @@ model VerificationToken {
 }
 
 model Expense {
-  id          String    @id @default(cuid())
-  title       String
-  description String?
-  amount      Float
-  currency    String    @default("EUR")
-  category    Category  @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  status      ExpenseStatus @default(PENDING)
-  billingType BillingType
-  submittedBy User      @relation("SubmittedExpenses", fields: [submittedById], references: [id])
-  submittedById String
-  attachments Attachment[]
-  approvals   Approval[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id              String        @id @default(cuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  title           String
+  description     String?
+  amount          Float
+  currency        String
+  expenseDate     DateTime      @default(now())
+  category        Category      @relation(fields: [categoryId], references: [id])
+  categoryId      String
+  billingType     BillingType
+  status          ExpenseStatus @default(PENDING)
+  submittedBy     User          @relation("SubmittedExpenses", fields: [submittedById], references: [id])
+  submittedById   String
+  attachments     Attachment[]
+  approvedBy      User?         @relation("ApprovedExpenses", fields: [approvedById], references: [id])
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectedBy      User?         @relation("RejectedExpenses", fields: [rejectedById], references: [id])
+  rejectedById    String?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  approvals       Approval[]
 }
 
 model Category {
