@@ -47,4 +47,4 @@ prisma/dev.db-journal
 .vscode
 
 /src/generated/prisma
-prisma/dev.db
+/public/uploads
