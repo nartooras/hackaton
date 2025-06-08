@@ -36,13 +36,13 @@ export default function Dashboard() {
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated") {
-      // Check if user has ACCOUNTING role
+      // Check if user has ADMIN or ACCOUNTING role
       const user = session?.user as SessionUser;
-      const hasAccountingRole = user?.roles?.some(
-        (role) => role.role.name === "ACCOUNTING"
+      const hasAccess = user?.roles?.some(
+        (role) => role.role.name === "ADMIN" || role.role.name === "ACCOUNTING"
       );
 
-      if (!hasAccountingRole) {
+      if (!hasAccess) {
         router.push("/expenses");
       } else {
         fetchDashboardStats();
