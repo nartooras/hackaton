@@ -44,6 +44,26 @@ export default function Navbar() {
           >
             <span className="text-xl font-bold text-blue-900 dark:text-blue-200">Cashflow Tuesday</span>
           </Link>
+          <Link
+            href="/claims/new"
+            className="flex items-center gap-2 text-white/90 hover:text-white focus:text-white transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-3 py-1"
+          >
+            <span>New Claim</span>
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              strokeWidth={1.5} 
+              stroke="currentColor" 
+              className="w-5 h-5"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                d="M12 4.5v15m7.5-7.5h-15" 
+              />
+            </svg>
+          </Link>
           <div className="flex items-center gap-4">
             <button
               onClick={() => setDarkMode((d) => !d)}
