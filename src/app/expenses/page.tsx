@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { useDropzone } from "react-dropzone";
-import Expenses from "@/components/Expenses";
+import { SubmittedExpenses } from "@/components/SubmittedExpenses";
 import { InvoicePreviewForm } from "@/components/InvoicePreviewForm";
 import { InvoiceData } from "@/app/services/invoiceExtractor";
 
@@ -24,11 +24,29 @@ interface UploadedFile {
   extracted?: InvoiceData;
 }
 
+interface Expense {
+  id: string;
+  title: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  submittedAt: string;
+  category: {
+    name: string;
+  };
+  attachments: {
+    filename: string;
+    url: string;
+  }[];
+}
+
 export default function ExpensesPage() {
   const { status } = useSession();
   const router = useRouter();
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadUrl, setUploadUrl] = useState("");
   const [uploadToken, setUploadToken] = useState('');
@@ -37,6 +55,26 @@ export default function ExpensesPage() {
     fileUrl: string;
   } | null>(null);
   const qrCodeRef = useRef<HTMLDivElement>(null);
+
+  // Fetch expenses
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      try {
+        const response = await fetch('/api/expenses');
+        if (!response.ok) {
+          throw new Error('Failed to fetch expenses');
+        }
+        const data = await response.json();
+        setExpenses(data.expenses);
+      } catch (error) {
+        console.error('Error fetching expenses:', error);
+      }
+    };
+
+    if (status === 'authenticated') {
+      fetchExpenses();
+    }
+  }, [status]);
 
   // Generate upload token and URL
   useEffect(() => {
@@ -228,7 +266,7 @@ export default function ExpensesPage() {
       <div className="max-w-4xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <Expenses uploadedFiles={uploadedFiles} />
+            <SubmittedExpenses expenses={expenses} />
           </div>
           <div>
             <div className="bg-white/80 dark:bg-gray-800/80 rounded-xl shadow-lg p-6 backdrop-blur-md animate-fade-in-up">
